@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 import random
 import re
+import bs4
 import requests
 from aiohttp import request
 from bs4 import BeautifulSoup
@@ -8,20 +9,25 @@ from bs4 import BeautifulSoup
 
 class Variants:
     def __init__(self):
-        self.weather = ['погода', 'температура']
-        self.prepositions = [' в ', ' и ', ' на ', ' около ']
-        self.questions = ['какой', 'где', 'почему', 'какая', 'какие']
-        self.howAreYouResponses = ['Где-то между хорошо и очень хорошо.', 'После того, как ты спросил, намного лучше.', 'Спасибо, что спросил, ты сделал мой день намного лучше.', 'Лучше, чем у многих людей.', 'Как у тебя, но лучше.', 'Ничего особенного.', 'Не жалуюсь, все равно меня никто не слушает.', 'Достаточно хорошо.', 'Средне, не великолепно, не ужасно, просто средне.', 'Пока все в порядке.']
-        self.howAreYou = ['как дела']
-        self.Hello = ['привет', 'хай', 'bonjour', 'hi', 'шалом', 'здравствуй', 'салют']
-        self.Time = ['время', 'часов']
+        self.weather = ["погода", "температура"]
+        self.prepositions = ["в", "и", "на", "около"]
+        self.questions = ["какой", "где", "почему", "какая", "какие"]
+        self.howAreYouResponses = ["Где-то между хорошо и очень хорошо.", "После того, как ты спросил, намного лучше.", "Спасибо, что спросил, ты сделал мой день намного лучше.", "Лучше, чем у многих людей.", "Как у тебя, но лучше.", "Ничего особенного.", "Не жалуюсь, все равно меня никто не слушает.", "Достаточно хорошо.", "Средне, не великолепно, не ужасно, просто средне.", "Пока все в порядке."]
+        self.howAreYou = ["как дела"]
+        self.Hello = ["привет", "хай", "bonjour", "hi", "шалом", "здравствуй", "салют", ""]
+        self.Time = ["время", "часов"]
         self.Wiki = ["что такое"]
-        self.offense = ['дура', "дебил"]
+        self.offense = ["дура", "дебил"]
         self.answersOffence = ["Кто так обзывается - тот так и называется", "Я так, и обидится могу"]
         self.getStories = ["расскажи сказку", "сказка"]
         self.clothes = ["одеть", "надеть"]
         self.veryCold = ["Сегодня очень холодно, наденьте куртку и теплую обувь", "Сегодня холодно, советую надеть утеплое нижнее бельё"]
         self.warm = ["Сегодня прохладно, советую надеть толстовку и джинсы", ""]
+        self.cook = ["рецепт"]
+        self.plus = ["плюс", "сложи", "+"]
+        self.minus = ["отним", "минус", "-"]
+        self.multiplication = ["*", "умнож"]
+        self.devide = ["делить"]
 
     def getWeather(self):
         return self.weather
@@ -34,21 +40,21 @@ class Variants:
     
     def deletePrepositions(self, zadanie:str):
         for i in self.prepositions:
-            zadanie = zadanie.replace(i, '')
+            zadanie = zadanie.replace(i, "")
         return zadanie
     
     def deleteVariants(self, zadanie:str, variants:list):
         for i in variants:
-            zadanie = zadanie.replace(i, '')
+            zadanie = zadanie.replace(i, "")
         return zadanie
     
     def deleteQuestions(self, zadanie:str):
         for i in self.questions:
-            zadanie = zadanie.replace(i, '')
+            zadanie = zadanie.replace(i, "")
         return zadanie
     
     def prepareWord(self, zadanie:str):
-        zadanie = zadanie.strip().replace('ё', 'е').capitalize()
+        zadanie = zadanie.strip().replace("ё", "е").capitalize()
         return zadanie
     
     def responseHowAreYou(self):
@@ -73,10 +79,10 @@ class Variants:
         url = "https://www.google.ru/search?q=" + zadanie.strip().replace("зона", "")
         response = requests.get(url)
         response.encoding = "utf-8"
-        #soup = BeautifulSoup(response.text, 'lxml')
-        #quotes = soup.find_all('tr', class_='BNeawe')
-        #if quotes == []: quotes = soup.find_all('div', class_='BNeawe')
-        #print(soup.decode('cp1251').encode('utf8'))
+        #soup = BeautifulSoup(response.text, "lxml")
+        #quotes = soup.find_all("tr", class_="BNeawe")
+        #if quotes == []: quotes = soup.find_all("div", class_="BNeawe")
+        #print(soup.decode("cp1251").encode("utf8"))
         #import json
 
         #data = json.loads(response.text)
@@ -93,15 +99,15 @@ class Variants:
         all_stories_list = []
         all_stories = requests.get(url)
         all_stories.encoding = "utf-8"
-        soup_stories = BeautifulSoup(all_stories.text, 'lxml')
-        stories = soup_stories.find_all('div', class_='info')
+        soup_stories = BeautifulSoup(all_stories.text, "lxml")
+        stories = soup_stories.find_all("div", class_="info")
         for story in stories:
-            all_stories_list.append(story.a.get('href'))
+            all_stories_list.append(story.a.get("href"))
         
         story_response = requests.get("https://nukadeti.ru" + all_stories_list[random.randint(0, len(all_stories_list) - 1)])
         story_response.encoding = "utf-8"
-        soup_story = BeautifulSoup(story_response.text, 'lxml')
-        text = soup_story.find_all('div', class_='tale-text')
+        soup_story = BeautifulSoup(story_response.text, "lxml")
+        text = soup_story.find_all("div", class_="tale-text")
         string = ""
         for sentence in text[0].p:
             string += sentence
@@ -135,3 +141,95 @@ class Variants:
         
         elif weather > 40:
             return ""
+    
+    def getCook(self):
+        return self.cook
+
+    def answerCook(self):
+        cooks = requests.get("https://eda.ru/recepty")
+        cooks_parsed = BeautifulSoup(cooks.text, "lxml")
+        cooks_class = cooks_parsed.find_all("span", class_="css-x3ykye-Info")
+        all_cooks_list = []
+        for i in cooks_class:
+            all_cooks_list.append(i.text)
+        
+        return all_cooks_list[random.randint(0, len(all_cooks_list) - 1)]
+
+    def getPlus(self):
+         return self.plus
+
+    def answerPlus(self, zadanie:str):
+        list_words = zadanie.split()
+        nums = []
+        for i in list_words:
+            if i.isdigit():
+                nums.append(int(i))
+
+        return sum(nums)
+
+    def getMinus(self):
+         return self.minus
+
+    def answerMinus(self, zadanie:str):
+        list_words = zadanie.split()
+        nums = []
+        res = 0
+        for i in list_words:
+            if i.isdigit():
+                nums.append(int(i))
+        res = nums[0]
+        for i in range(1, len(nums)):
+            res -= nums[i]
+        return res
+
+    def getMultiplication(self):
+         return self.multiplication
+
+    def answerMultiplication(self, zadanie:str):
+        list_words = zadanie.split()
+        nums = []
+        res = 1
+        for i in list_words:
+            if i.isdigit():
+                nums.append(int(i))
+        for i in nums:
+            res *= i
+        return res
+
+    def getMultiplication(self):
+         return self.multiplication
+
+    def answerMultiplication(self, zadanie:str):
+        list_words = zadanie.split()
+        nums = []
+        res = 1
+        for i in list_words:
+            if i.isdigit():
+                nums.append(int(i))
+        for i in nums:
+            res *= i
+        return res
+
+    def getDevide(self):
+         return self.devide
+
+    def is_int(self, n):
+        return int(n) == float(n)
+
+    def answerDevide(self, zadanie:str):
+        list_words = zadanie.split()
+        nums = []
+        res = 0
+        for i in list_words:
+            if i.isdigit():
+                nums.append(int(i))
+        
+        res = nums[0]
+
+        for i in range(1, len(nums)):
+            res /= nums[i]
+        
+        if self.is_int(res): return int(res)
+        else: return res
+        
+

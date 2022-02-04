@@ -151,6 +151,30 @@ def makeSomething(zadanie): #main fuction to process sentensec and answer
 			talk(variants.getStory())
 			answers = 1
 
+		elif variants.getMatches(variants.getCook(), zadanie):
+			talk(variants.answerCook())
+			answers = 1
+		
+		elif variants.getMatches(variants.getPlus(), zadanie):
+			talk(variants.answerPlus(zadanie))
+			answers = 1
+			
+		elif variants.getMatches(variants.getMinus(), zadanie):
+			talk(variants.answerMinus(zadanie))
+			answers = 1
+			
+		elif variants.getMatches(variants.getMultiplication(), zadanie):
+			talk(variants.answerMultiplication(zadanie))
+			answers = 1
+			
+		elif variants.getMatches(variants.getMultiplication(), zadanie):
+			talk(variants.answerMultiplication(zadanie))
+			answers = 1
+			
+		elif variants.getMatches(variants.getDevide(), zadanie):
+			talk(variants.answerDevide(zadanie))
+			answers = 1
+
 		elif not answers:
 			try:
 				if wikipedia.page(variants.deleteVariants(str(zadanie).replace("зона", ""), variants.getWiki())):
