@@ -174,6 +174,14 @@ def makeSomething(zadanie): #main fuction to process sentensec and answer
 		elif variants.getMatches(variants.getDevide(), zadanie):
 			talk(variants.answerDevide(zadanie))
 			answers = 1
+		
+		elif variants.getMatches(variants.getJoke(), zadanie):
+			talk(variants.answerJoke())
+			answers = 1
+
+		elif variants.getMatches(variants.getProgram(), zadanie):
+			talk(variants.answerProgram())
+			answers = 1
 
 		elif not answers:
 			try:

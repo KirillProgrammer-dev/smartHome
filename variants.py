@@ -28,6 +28,8 @@ class Variants:
         self.minus = ["отним", "минус", "-"]
         self.multiplication = ["*", "умнож"]
         self.devide = ["делить"]
+        self.joke = ["анекдот", "шутк"]
+        self.programm = ["программа"]
 
     def getWeather(self):
         return self.weather
@@ -231,5 +233,38 @@ class Variants:
         
         if self.is_int(res): return int(res)
         else: return res
+    
+    def getJoke(self):
+        return self.joke
+
+    def answerJoke(self):
+        joke = requests.get("https://anekdotbar.ru/top-100.html")
+        joke_parsed = BeautifulSoup(joke.text, "lxml")
+        joke_class = joke_parsed.find_all("div", class_="tecst")
+        all_joke_list = []
+        for i in joke_class:
+            i = i.text.split("+")[0]
+            all_joke_list.append(i)
+
+        all_res_jokes = []
+
+        for i in all_joke_list:
+            if len(i) <= 200:
+                all_res_jokes.append(i)
+
+        return all_res_jokes[random.randint(0, len(all_res_jokes)-1)]
+    
+    def getProgram(self):
+        return self.programm
+        
+    def answerProgram(self):
+        program = request.get("https://tv.yandex.ru/")
+        program_parsed = BeautifulSoup(program.text, "lxml")
+        program_class = program_parsed.find_all("div", class_="grid-event__item-title-wrap")
+        all_program_list = []
+        for i in program_class:
+            all_program_list.append(i.text)
+        
+        return all_program_list[random.randint(0, len(all_program_list)-1)]
         
 
