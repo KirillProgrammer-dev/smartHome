@@ -16,6 +16,7 @@ import re
 import socket
 import bluetooth
 
+
 user_ip = socket.gethostbyname(socket.gethostname())
 print(user_ip)
 wikipedia.set_lang("ru") 
@@ -41,26 +42,15 @@ def talk(words): #function to synthesize human-like speech
 	except ValueError:
 		print("Error")
 
-def on_light():
-	sock = bluetooth.BluetoothSocket( bluetooth.RFCOMM )
 
-	nearby_devices = bluetooth.discover_devices(lookup_names=True)
-	for addr, name in nearby_devices:
-		if name == "Bluetooth_light":
-			break
-
-	sock.connect((addr, 1))
-	
-	sock.send("1")
-
-
-def getWeather(zadanie, user_ip):
+def getWeather(zadanie, user_ip, cities):
 	city = None
 	for i in cities:
 		zadanie = variants.deletePrepositions(zadanie)
 		zadanie = variants.deleteVariants(zadanie, variants.getWeather())
 		zadanie = variants.deleteQuestions(zadanie)
 		zadanie = variants.prepareWord(zadanie)
+		#print(zadanie)
 		if (get_word.stem(variants.prepareWord(i)) == get_word.stem(zadanie)):
 			city = i
 	if city == None:
@@ -77,6 +67,7 @@ def getWeather(zadanie, user_ip):
 		print(response)
 
 	if (city != None):
+		print(city)
 		openweatherApi = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={openweatherApiKey}&units=metric'
 		weatherRequest = requests.get(openweatherApi)
 		weatherJson = json.loads(weatherRequest.text)
@@ -109,7 +100,6 @@ def command():
 def makeSomething(zadanie): #main fuction to process sentensec and answer
 	answers = 0
 	if config.getName() in zadanie:
-		print("Yes")
 		zadanie = zadanie.replace(config.getName(), '')
 		if 'открыть сайт' in zadanie:
 			talk("Уже открываю")
@@ -126,7 +116,7 @@ def makeSomething(zadanie): #main fuction to process sentensec and answer
 			talk('Меня зовут ' + (config.getName()).capitalize())
 
 		elif variants.getMatches(variants.getWeather(), zadanie):
-			talk(getWeather(zadanie, user_ip)[0])
+			talk(getWeather(zadanie, user_ip, cities)[0])
 			answers = 1
 		
 		elif variants.getMatches(variants.getClothes(), zadanie):
@@ -141,6 +131,10 @@ def makeSomething(zadanie): #main fuction to process sentensec and answer
 		elif variants.getMatches(variants.getHowAreYou(), zadanie):
 			talk(variants.responseHowAreYou())
 			answers = 1
+		
+		# elif variants.getMatches(variants.getHowAreYou(), zadanie):
+		# 	talk(variants.responseHowAreYou())
+		# 	answers = 1
 		
 		elif variants.getMatches(variants.getOffense(), zadanie):
 			talk(variants.answerOffence())
@@ -183,13 +177,26 @@ def makeSomething(zadanie): #main fuction to process sentensec and answer
 			talk(variants.answerProgram())
 			answers = 1
 
+		elif "включ" in zadanie and "свет" in zadanie:
+			sock = bluetooth.BluetoothSocket( bluetooth.RFCOMM )
+			sock.connect(("3C:71:BF:F9:69:4E", 1))
+			sock.send("0")
+			sock.close()
+			talk("Хорошо, сделано")
+		
+		elif "выключ" in zadanie and "свет" in zadanie:
+			sock = bluetooth.BluetoothSocket( bluetooth.RFCOMM )
+			sock.connect(("3C:71:BF:F9:69:4E", 1))
+			sock.send("1")
+			sock.close()
+			talk("Хорошо, сделано")
+
 		elif not answers:
 			try:
 				if wikipedia.page(variants.deleteVariants(str(zadanie).replace("зона", ""), variants.getWiki())):
 					talk(re.sub(r"\(.+?\)\s", "", wikipedia.page(variants.deleteVariants(str(zadanie).replace("зона", ""), variants.getWiki())).content).replace("«", "").replace("»", "").split(".")[0])
-			except wikipedia.exceptions.DisambiguationError as e:
-				talk("К сожелению я не могу выполнить данное задание")
-			
+			except wikipedia.exceptions.DisambiguationError:
+				talk("К сожелению я не могу выполнить данное задание")			
 			except wikipedia.exceptions.PageError: 
 				talk("К сожелению я не могу выполнить данное задание")
 		#elif variants.getMatches(variants.getWiki(), zadanie):

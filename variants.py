@@ -10,8 +10,8 @@ from bs4 import BeautifulSoup
 class Variants:
     def __init__(self):
         self.weather = ["погода", "температура"]
-        self.prepositions = ["в", "и", "на", "около"]
-        self.questions = ["какой", "где", "почему", "какая", "какие"]
+        self.prepositions = ["в ", "и ", "на ", "около "]
+        self.questions = ["какой ", "где ", "почему ", "какая ", "какие "]
         self.howAreYouResponses = ["Где-то между хорошо и очень хорошо.", "После того, как ты спросил, намного лучше.", "Спасибо, что спросил, ты сделал мой день намного лучше.", "Лучше, чем у многих людей.", "Как у тебя, но лучше.", "Ничего особенного.", "Не жалуюсь, все равно меня никто не слушает.", "Достаточно хорошо.", "Средне, не великолепно, не ужасно, просто средне.", "Пока все в порядке."]
         self.howAreYou = ["как дела"]
         self.Hello = ["привет", "хай", "bonjour", "hi", "шалом", "здравствуй", "салют", ""]
@@ -56,7 +56,7 @@ class Variants:
         return zadanie
     
     def prepareWord(self, zadanie:str):
-        zadanie = zadanie.strip().replace("ё", "е").capitalize()
+        zadanie = zadanie.strip().replace("ё", "е").lower()
         return zadanie
     
     def responseHowAreYou(self):
